@@ -1,0 +1,6 @@
+{
+  "name": "NovaPlug — Premium Technology & Authenticity",
+  "description": "World-class consumer electronics engineered for modern life in Ghana and beyond. Verified authenticity, studio-grade audio, resilient power stations, and creator tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

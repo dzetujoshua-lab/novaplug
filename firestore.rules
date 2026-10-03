@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 't0887970@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Products catalog
+    match /products/{productId} {
+      allow read: if isValidId(productId);
+      allow write: if isAdmin();
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isValidId(orderId) && (
+        isAdmin() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid) ||
+        resource.data.userId == 'guest'
+      );
+      allow create: if isValidId(orderId) &&
+        request.resource.data.keys().hasAll(['id', 'orderNumber', 'customerEmail', 'items', 'totalGHS', 'status', 'paymentMethod']) &&
+        request.resource.data.totalGHS is number &&
+        request.resource.data.totalGHS >= 0;
+      allow update: if isValidId(orderId) && (
+        isAdmin() ||
+        (resource.data.userId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']))
+      );
+    }
+
+    // Product Authenticity Verification Codes
+    match /product_codes/{codeId} {
+      allow read: if isValidId(codeId);
+      allow update: if isValidId(codeId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['verificationCount', 'lastVerifiedAt']);
+      allow write: if isAdmin();
+    }
+
+    // Reviews
+    match /reviews/{reviewId} {
+      allow read: if isValidId(reviewId);
+      allow create: if isValidId(reviewId) &&
+        request.resource.data.keys().hasAll(['productId', 'authorName', 'rating', 'comment']) &&
+        request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+      allow update, delete: if isAdmin();
+    }
+
+    // Coupons
+    match /coupons/{couponId} {
+      allow read: if isValidId(couponId);
+      allow write: if isAdmin();
+    }
+
+    // Admins
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+  }
+}

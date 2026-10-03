@@ -1,0 +1,136 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "NovaPlug premium electronics product",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 150 },
+        "slug": { "type": "string", "maxLength": 100 },
+        "tagline": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "category": { "type": "string", "enum": ["audio", "power", "creator", "accessories"] },
+        "priceGHS": { "type": "number" },
+        "originalPriceGHS": { "type": "number" },
+        "inStock": { "type": "boolean" },
+        "stockQuantity": { "type": "number" },
+        "sku": { "type": "string", "maxLength": 50 },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "gallery": { "type": "array" },
+        "variants": { "type": "array" },
+        "specs": { "type": "object" },
+        "inTheBox": { "type": "array" },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "slug", "category", "priceGHS", "stockQuantity", "sku"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderNumber": { "type": "string", "maxLength": 30 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "customerEmail": { "type": "string", "maxLength": 100 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 30 },
+        "items": { "type": "array" },
+        "subtotalGHS": { "type": "number" },
+        "shippingFeeGHS": { "type": "number" },
+        "discountGHS": { "type": "number" },
+        "totalGHS": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "paid", "processing", "packed", "shipped", "out_for_delivery", "delivered", "cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["momo_mtn", "momo_telecel", "momo_at", "card_paystack", "card_flutterwave", "bank_transfer"] },
+        "paymentReference": { "type": "string", "maxLength": 100 },
+        "paymentStatus": { "type": "string", "enum": ["pending", "successful", "failed", "refunded"] },
+        "shippingAddress": { "type": "object" },
+        "deliveryZone": { "type": "string" },
+        "estimatedDelivery": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "orderNumber", "customerEmail", "customerName", "items", "totalGHS", "status", "paymentMethod"]
+    },
+    "ProductCode": {
+      "title": "ProductCode",
+      "description": "Authenticity passport verification code",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 50 },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "batchNumber": { "type": "string" },
+        "manufactureDate": { "type": "string" },
+        "factoryLocation": { "type": "string" },
+        "isGenuine": { "type": "boolean" },
+        "verificationCount": { "type": "number" },
+        "firstVerifiedAt": { "type": "string" },
+        "lastVerifiedAt": { "type": "string" },
+        "warrantyMonths": { "type": "number" },
+        "warrantyValidUntil": { "type": "string" }
+      },
+      "required": ["id", "code", "productId", "productName", "batchNumber", "isGenuine"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Verified customer review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "rating": { "type": "number" },
+        "title": { "type": "string", "maxLength": 150 },
+        "comment": { "type": "string", "maxLength": 1500 },
+        "isVerifiedPurchase": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["approved", "pending", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "productId", "authorName", "rating", "comment"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Promotional discount voucher",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "maxLength": 30 },
+        "discountType": { "type": "string", "enum": ["percentage", "fixed"] },
+        "discountValue": { "type": "number" },
+        "minOrderValueGHS": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["id", "code", "discountType", "discountValue", "isActive"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Published NovaPlug products catalog"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer orders and fulfillment timeline"
+    },
+    "/product_codes/{codeId}": {
+      "schema": "ProductCode",
+      "description": "Authenticity passport verification registry"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Verified customer product reviews"
+    },
+    "/coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Valid promotional discounts"
+    }
+  }
+}
